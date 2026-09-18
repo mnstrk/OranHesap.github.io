@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pos Komisyonu Hesaplama</title>
+    <style>
+        :root {
+            --primary-color: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-main: #1f2937;
+            --text-muted: #6b7280;
+            --border-color: #d1d5db;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
+        .container {
+            background: var(--card-bg);
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h2 {
+            text-align: center;
+            color: var(--text-main);
+            font-size: 22px;
+            margin-bottom: 24px;
+        }
+
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .currency-symbol {
+            position: absolute;
+            right: 14px;
+            color: var(--text-muted);
+            font-size: 16px;
+            font-weight: 600;
+            pointer-events: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            font-size: 16px;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+
+        input:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+
+        .results {
+            margin-top: 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .result-card {
+            padding: 16px;
+            border-radius: 10px;
+            background: #f9fafb;
+            border-left: 5px solid var(--primary-color);
+        }
+
+        .result-title {
+            font-size: 13px;
+            color: var(--text-muted);
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .result-value {
+            font-size: 20px;
+            font-weight: bold;
+            color: var(--text-main);
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Pos Komisyonu Hesaplama</h2>
+    
+    <div class="input-group">
+        <label for="oranInput">Oran (%)</label>
+        <input type="number" id="oranInput" placeholder="Örn: 15" oninput="hesapla()">
+    </div>
+    
+    <div class="input-group">
+        <label for="tutarInput">Tutar</label>
+        <div class="input-wrapper">
+            <input type="number" id="tutarInput" placeholder="Örn: 1000" oninput="hesapla()">
+            <span class="currency-symbol">₺</span>
+        </div>
+    </div>
+
+    <div class="results">
+        <div class="result-card" style="border-left-color: #ef4444;">
+            <div class="result-title">İçinden Kesilen (Çarpma)</div>
+            <div class="result-value" id="carpmaSonuc">0,00 ₺</div>
+        </div>
+
+        <div class="result-card" style="border-left-color: #10b981;">
+            <div class="result-title">Eline Geçecek (Bölme)</div>
+            <div class="result-value" id="bolmeSonuc">0,00 ₺</div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function hesapla() {
+        let oran = parseFloat(document.getElementById('oranInput').value);
+        let tutar = parseFloat(document.getElementById('tutarInput').value);
+
+        let carpmaElem = document.getElementById('carpmaSonuc');
+        let bolmeElem = document.getElementById('bolmeSonuc');
+
+        if (isNaN(oran) || isNaN(tutar)) {
+            carpmaElem.innerText = "0,00 ₺";
+            bolmeElem.innerText = "0,00 ₺";
+            return;
+        }
+
+        // 100'den çıkarma ve 0,xxx formatına getirme (Örn: 15 için -> 85 -> 0.85)
+        let kalanOranYuzde = 100 - oran;
+        let carpan = kalanOranYuzde / 100;
+
+        // İşlemler
+        let carpmaSonuc = tutar * carpan;
+        let bolmeSonuc = carpan !== 0 ? tutar / carpan : 0;
+
+        // Sonuçları TL simgesiyle yazdır
+        let formatliCarpma = carpmaSonuc.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        let formatliBolme = bolmeSonuc.toLocaleString('tr-TR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+        carpmaElem.innerText = formatliCarpma + " ₺";
+        bolmeElem.innerText = formatliBolme + " ₺";
+    }
+</script>
+
+</body>
+</html>
